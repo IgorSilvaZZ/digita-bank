@@ -1,7 +1,16 @@
 import { v4 as uuid } from "uuid";
 
 interface IUsersRepository {
-  create({ name, cpf, phone, email, password, photo }): Promise<User>;
+  create({
+    name,
+    cpf,
+    phone,
+    email,
+    password,
+    photo,
+    agency,
+    account,
+  }): Promise<User>;
   findByUserCpf(cpf: string): Promise<User>;
 }
 
@@ -13,6 +22,8 @@ class User {
   email: string;
   password: string;
   photo: string;
+  agency: number;
+  account: number;
 
   constructor() {
     if (!this.id) {
@@ -24,7 +35,16 @@ class User {
 class UserRepositoryInMemory implements IUsersRepository {
   users: User[] = [];
 
-  async create({ name, cpf, phone, email, password, photo }): Promise<User> {
+  async create({
+    name,
+    cpf,
+    phone,
+    email,
+    password,
+    photo,
+    agency,
+    account,
+  }): Promise<User> {
     const user = new User();
 
     Object.assign(user, {
@@ -34,6 +54,8 @@ class UserRepositoryInMemory implements IUsersRepository {
       email,
       password,
       photo,
+      agency,
+      account,
     });
 
     this.users.push(user);
@@ -55,6 +77,9 @@ class CreateUserUseCase {
       throw new Error("User Already Exists!");
     }
 
+    const agency = Math.random() * (9999 - 1) + 1;
+    const account = Math.random() * (10 - 1) + 1;
+
     const user = this.usersRepository.create({
       name,
       cpf,
@@ -62,6 +87,8 @@ class CreateUserUseCase {
       email,
       password,
       photo,
+      agency,
+      account,
     });
 
     return user;
@@ -76,7 +103,7 @@ describe("Create a User", () => {
     usersRepositoryInMemory = new UserRepositoryInMemory();
     createUserUseCase = new CreateUserUseCase(usersRepositoryInMemory);
   });
-  it("Should create a user", async () => {
+  it("Should create a user, create agency and number account", async () => {
     const user = await createUserUseCase.execute({
       name: "Test User",
       cpf: "12312312309",
@@ -87,6 +114,8 @@ describe("Create a User", () => {
     });
 
     expect(user).toHaveProperty("id");
+    expect(user).toHaveProperty("agency");
+    expect(user).toHaveProperty("account");
   });
 
   it("Should not create user with cpf exists!", async () => {
