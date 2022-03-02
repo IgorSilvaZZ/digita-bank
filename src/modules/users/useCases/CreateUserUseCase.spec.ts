@@ -110,6 +110,10 @@ class CreateUserUseCase {
       throw Error("Age for user is invalid!");
     }
 
+    if (password.length < 6) {
+      throw Error("Password is invalid!");
+    }
+
     const agency = Math.random() * (9999 - 1) + 1;
     const account = Math.random() * (10 - 1) + 1;
 
@@ -142,7 +146,7 @@ describe("Create a User", () => {
       name: "Test User",
       cpf: "12312312309",
       email: "test@dev.com",
-      password: "123",
+      password: "123456",
       phone: "11987489504",
       photo: null,
       date_birth: "2001-12-06",
@@ -158,7 +162,7 @@ describe("Create a User", () => {
       name: "Test User",
       cpf: "12312312309",
       email: "test@dev.com",
-      password: "123",
+      password: "123456",
       phone: "11987489504",
       photo: null,
       date_birth: "2001-12-06",
@@ -169,7 +173,7 @@ describe("Create a User", () => {
         name: "Test User",
         cpf: "12312312309",
         email: "test@dev.com",
-        password: "123",
+        password: "123456",
         phone: "11987489504",
         photo: null,
         date_birth: "2001-12-06",
@@ -182,7 +186,7 @@ describe("Create a User", () => {
       name: "Test User",
       cpf: "12312312309",
       email: "test@dev.com",
-      password: "123",
+      password: "123456",
       phone: "11987489504",
       photo: null,
       date_birth: "2001-12-06",
@@ -193,7 +197,7 @@ describe("Create a User", () => {
         name: "Test User",
         cpf: "12355543210",
         email: "test@dev.com",
-        password: "123",
+        password: "123456",
         phone: "11987489504",
         photo: null,
         date_birth: "2001-12-06",
@@ -207,11 +211,25 @@ describe("Create a User", () => {
         name: "Test User",
         cpf: "12355543210",
         email: "test@dev.com",
-        password: "123",
+        password: "123456",
         phone: "11987489504",
         photo: null,
         date_birth: "2005-10-10",
       });
     }).rejects.toEqual(new Error("Age for user is invalid!"));
+  });
+
+  it("Should not create user for passwor is invalid!", async () => {
+    expect(async () => {
+      await createUserUseCase.execute({
+        name: "Test User",
+        cpf: "12355543210",
+        email: "test@dev.com",
+        password: "123",
+        phone: "11987489504",
+        photo: null,
+        date_birth: "2001-10-10",
+      });
+    }).rejects.toEqual(new Error("Password is invalid!"));
   });
 });
