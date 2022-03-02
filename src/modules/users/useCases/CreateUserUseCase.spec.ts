@@ -12,6 +12,7 @@ interface IUsersRepository {
     account,
   }): Promise<User>;
   findByUserCpf(cpf: string): Promise<User>;
+  findByUserEmail(email: string): Promise<User>;
 }
 
 class User {
@@ -66,6 +67,10 @@ class UserRepositoryInMemory implements IUsersRepository {
   async findByUserCpf(cpf: string): Promise<User> {
     return this.users.find((user) => user.cpf === cpf);
   }
+
+  async findByUserEmail(email: string): Promise<User> {
+    return this.users.find((user) => user.email === email);
+  }
 }
 
 class CreateUserUseCase {
@@ -74,6 +79,12 @@ class CreateUserUseCase {
     const userExists = await this.usersRepository.findByUserCpf(cpf);
 
     if (userExists) {
+      throw new Error("User Already Exists!");
+    }
+
+    const userExistsEmail = await this.usersRepository.findByUserEmail(email);
+
+    if (userExistsEmail) {
       throw new Error("User Already Exists!");
     }
 
@@ -132,6 +143,28 @@ describe("Create a User", () => {
       await createUserUseCase.execute({
         name: "Test User",
         cpf: "12312312309",
+        email: "test@dev.com",
+        password: "123",
+        phone: "11987489504",
+        photo: null,
+      });
+    }).rejects.toEqual(new Error("User Already Exists!"));
+  });
+
+  it("Should not create user with email exists!", async () => {
+    await createUserUseCase.execute({
+      name: "Test User",
+      cpf: "12312312309",
+      email: "test@dev.com",
+      password: "123",
+      phone: "11987489504",
+      photo: null,
+    });
+
+    expect(async () => {
+      await createUserUseCase.execute({
+        name: "Test User",
+        cpf: "12355543210",
         email: "test@dev.com",
         password: "123",
         phone: "11987489504",
