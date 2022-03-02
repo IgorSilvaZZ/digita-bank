@@ -10,6 +10,7 @@ interface IUsersRepository {
     photo,
     agency,
     account,
+    date_birth,
   }): Promise<User>;
   findByUserCpf(cpf: string): Promise<User>;
   findByUserEmail(email: string): Promise<User>;
@@ -25,6 +26,7 @@ class User {
   photo: string;
   agency: number;
   account: number;
+  date_birth: Date;
 
   constructor() {
     if (!this.id) {
@@ -45,6 +47,7 @@ class UserRepositoryInMemory implements IUsersRepository {
     photo,
     agency,
     account,
+    date_birth,
   }): Promise<User> {
     const user = new User();
 
@@ -57,6 +60,7 @@ class UserRepositoryInMemory implements IUsersRepository {
       photo,
       agency,
       account,
+      date_birth,
     });
 
     this.users.push(user);
@@ -75,7 +79,15 @@ class UserRepositoryInMemory implements IUsersRepository {
 
 class CreateUserUseCase {
   constructor(private usersRepository: IUsersRepository) {}
-  async execute({ name, cpf, phone, email, password, photo }): Promise<User> {
+  async execute({
+    name,
+    cpf,
+    phone,
+    email,
+    password,
+    photo,
+    date_birth,
+  }): Promise<User> {
     const userExists = await this.usersRepository.findByUserCpf(cpf);
 
     if (userExists) {
@@ -86,6 +98,16 @@ class CreateUserUseCase {
 
     if (userExistsEmail) {
       throw new Error("User Already Exists!");
+    }
+
+    const nowDate = Number(new Date().getFullYear());
+
+    const dateParsed = Number(new Date(date_birth).getFullYear());
+
+    const userAgeIsInvalid = nowDate - dateParsed < 18;
+
+    if (userAgeIsInvalid) {
+      throw Error("Age for user is invalid!");
     }
 
     const agency = Math.random() * (9999 - 1) + 1;
@@ -100,6 +122,7 @@ class CreateUserUseCase {
       photo,
       agency,
       account,
+      date_birth,
     });
 
     return user;
@@ -122,6 +145,7 @@ describe("Create a User", () => {
       password: "123",
       phone: "11987489504",
       photo: null,
+      date_birth: "2001-12-06",
     });
 
     expect(user).toHaveProperty("id");
@@ -137,6 +161,7 @@ describe("Create a User", () => {
       password: "123",
       phone: "11987489504",
       photo: null,
+      date_birth: "2001-12-06",
     });
 
     expect(async () => {
@@ -147,6 +172,7 @@ describe("Create a User", () => {
         password: "123",
         phone: "11987489504",
         photo: null,
+        date_birth: "2001-12-06",
       });
     }).rejects.toEqual(new Error("User Already Exists!"));
   });
@@ -159,6 +185,7 @@ describe("Create a User", () => {
       password: "123",
       phone: "11987489504",
       photo: null,
+      date_birth: "2001-12-06",
     });
 
     expect(async () => {
@@ -169,7 +196,22 @@ describe("Create a User", () => {
         password: "123",
         phone: "11987489504",
         photo: null,
+        date_birth: "2001-12-06",
       });
     }).rejects.toEqual(new Error("User Already Exists!"));
+  });
+
+  it("Should not create user age before 18", async () => {
+    expect(async () => {
+      await createUserUseCase.execute({
+        name: "Test User",
+        cpf: "12355543210",
+        email: "test@dev.com",
+        password: "123",
+        phone: "11987489504",
+        photo: null,
+        date_birth: "2005-10-10",
+      });
+    }).rejects.toEqual(new Error("Age for user is invalid!"));
   });
 });
