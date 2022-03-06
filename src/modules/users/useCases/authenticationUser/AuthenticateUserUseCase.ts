@@ -1,7 +1,9 @@
 import { sign } from "jsonwebtoken";
+import { compare } from "bcryptjs";
 
 import { IUsersRepository } from "@modules/users/repositories/IUsersRepository";
 import { secret } from "@config/auth";
+import { AppErrors } from "@shared/errors/AppErrors";
 
 interface IResponseToken {
   token: string;
@@ -24,11 +26,14 @@ class AuthenticateUserUseCase {
     const user = await this.usersRepository.findByUserAccount({
       agency,
       account,
-      password,
     });
 
     if (!user) {
-      throw new Error("Agency/Account or Password is incorrect!");
+      throw new AppErrors("Agency/Account or Password is incorrect!");
+    }
+
+    if (!(await compare(password, user.password))) {
+      throw new AppErrors("Agency/Account or Password is incorrect!");
     }
 
     const token = sign({}, secret, {

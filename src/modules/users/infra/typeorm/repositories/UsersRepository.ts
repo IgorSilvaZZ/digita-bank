@@ -46,6 +46,14 @@ class UsersRepository implements IUsersRepository {
 
     return user;
   }
+
+  async findByUserAccount({ agency, account }): Promise<User> {
+    const user = await this.repository.findOne({
+      where: { agency, account },
+    });
+
+    return user;
+  }
 }
 
 export { UsersRepository };
