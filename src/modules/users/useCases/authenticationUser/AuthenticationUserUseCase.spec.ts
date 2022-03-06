@@ -48,4 +48,70 @@ describe("Authentication User", () => {
       await authenticateUserUseCase.execute(userRequest);
     }).rejects.toEqual(new Error("Agency/Account or Password is incorrect!"));
   });
+
+  it("Should not ble able to authenticate with incorrect password", async () => {
+    const user = await createUserUseCase.execute({
+      name: "Test User",
+      cpf: "12312312309",
+      email: "test@dev.com",
+      password: "123456",
+      phone: "11987489504",
+      photo: null,
+      date_birth: "2001-12-06",
+    });
+
+    const userRequest = {
+      agency: user.agency,
+      account: user.account,
+      password: "passwordIncorrect",
+    };
+
+    expect(async () => {
+      await authenticateUserUseCase.execute(userRequest);
+    }).rejects.toEqual(new Error("Agency/Account or Password is incorrect!"));
+  });
+
+  it("Should not ble able to authenticate with incorrect agency", async () => {
+    const user = await createUserUseCase.execute({
+      name: "Test User",
+      cpf: "12312312309",
+      email: "test@dev.com",
+      password: "123456",
+      phone: "11987489504",
+      photo: null,
+      date_birth: "2001-12-06",
+    });
+
+    const userRequest = {
+      agency: "agencyIncorrect",
+      account: user.account,
+      password: user.password,
+    };
+
+    expect(async () => {
+      await authenticateUserUseCase.execute(userRequest);
+    }).rejects.toEqual(new Error("Agency/Account or Password is incorrect!"));
+  });
+
+  it("Should not ble able to authenticate with incorrect account", async () => {
+    const user = await createUserUseCase.execute({
+      name: "Test User",
+      cpf: "12312312309",
+      email: "test@dev.com",
+      password: "123456",
+      phone: "11987489504",
+      photo: null,
+      date_birth: "2001-12-06",
+    });
+
+    const userRequest = {
+      agency: user.agency,
+      account: "incorrectAgency",
+      password: user.password,
+    };
+
+    expect(async () => {
+      await authenticateUserUseCase.execute(userRequest);
+    }).rejects.toEqual(new Error("Agency/Account or Password is incorrect!"));
+  });
 });
