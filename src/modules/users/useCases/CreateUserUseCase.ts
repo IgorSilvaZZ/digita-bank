@@ -1,6 +1,7 @@
+import { hash } from "bcryptjs";
+
 import { User } from "@modules/users/infra/typeorm/entities/User";
 import { IUsersRepository } from "../repositories/IUsersRepository";
-
 class CreateUserUseCase {
   constructor(private usersRepository: IUsersRepository) {}
   async execute({
@@ -38,6 +39,8 @@ class CreateUserUseCase {
       throw Error("Password is invalid!");
     }
 
+    const passwordHash = await hash(password, 8);
+
     const agency = Math.random() * (9999 - 1) + 1;
     const account = Math.random() * (10 - 1) + 1;
 
@@ -46,7 +49,7 @@ class CreateUserUseCase {
       cpf,
       phone,
       email,
-      password,
+      password: passwordHash,
       photo,
       agency,
       account,
