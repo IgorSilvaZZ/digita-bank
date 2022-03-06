@@ -1,7 +1,7 @@
 import { hash } from "bcryptjs";
 
 import { User } from "@modules/users/infra/typeorm/entities/User";
-import { IUsersRepository } from "../repositories/IUsersRepository";
+import { IUsersRepository } from "../../repositories/IUsersRepository";
 class CreateUserUseCase {
   constructor(private usersRepository: IUsersRepository) {}
   async execute({
@@ -41,8 +41,8 @@ class CreateUserUseCase {
 
     const passwordHash = await hash(password, 8);
 
-    const agency = Math.random() * (9999 - 1) + 1;
-    const account = Math.random() * (10 - 1) + 1;
+    const agency = Math.floor(Math.random() * (9999 - 1) + 1);
+    const account = Math.floor(Math.random() * (10 - 1) + 1);
 
     const user = this.usersRepository.create({
       name,

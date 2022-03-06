@@ -1,4 +1,4 @@
-import { UserRepositoryInMemory } from "../repositories/in-memory/UserRepositoryInMemory";
+import { UserRepositoryInMemory } from "../../repositories/in-memory/UserRepositoryInMemory";
 import { CreateUserUseCase } from "./CreateUserUseCase";
 
 let usersRepositoryInMemory: UserRepositoryInMemory;
